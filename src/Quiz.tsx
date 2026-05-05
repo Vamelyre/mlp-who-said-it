@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { QuizQuestion } from './types'
 import './Quiz.css'
+import fluttershyPause from '../media/fluttershyPause.gif'
+import acedGif from '../media/aced.gif'
+import failGif from '../media/fail.gif'
 
 interface QuizProps {
   questions: QuizQuestion[]
@@ -8,10 +11,12 @@ interface QuizProps {
 
 export function Quiz({ questions }: QuizProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0)
+  const [quizVersion, setQuizVersion] = useState(0)
   const [score, setScore] = useState(0)
   const [showScore, setShowScore] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
   const [answered, setAnswered] = useState(false)
+  const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number | null>(null)
   const [shuffledOptions, setShuffledOptions] = useState<string[]>([])
   const [correctAnswerIndex, setCorrectAnswerIndex] = useState(0)
   const [timeLeft, setTimeLeft] = useState(0)
@@ -19,7 +24,7 @@ export function Quiz({ questions }: QuizProps) {
   const getTimeForDifficulty = (difficulty: string) => {
     if (difficulty === 'easy') return 10
     if (difficulty === 'medium') return 8
-    return 5
+    return 6
   }
 
   const advanceToNextQuestion = () => {
@@ -49,7 +54,8 @@ export function Quiz({ questions }: QuizProps) {
     setCorrectAnswerIndex(nextOptions.indexOf(question.characer))
     setTimeLeft(getTimeForDifficulty(question.difficulty))
     setAnswered(false)
-  }, [currentQuestion, questions])
+    setSelectedAnswerIndex(null)
+  }, [currentQuestion, questions, quizVersion])
 
   useEffect(() => {
     if (showScore || answered || isPaused || timeLeft <= 0) return
@@ -68,33 +74,50 @@ export function Quiz({ questions }: QuizProps) {
     }
   }, [answered, showScore, isPaused, timeLeft])
 
-  const handleAnswerClick = (index: number) => {
+  const handleSelectOption = (index: number) => {
     if (answered) return
-
-    setAnswered(true)
-
-    if (index === correctAnswerIndex) {
-      setScore(score + 1)
-    }
+    setSelectedAnswerIndex(index)
   }
 
-  const handleNextQuestion = () => {
+  const handleConfirmAnswer = () => {
+    if (answered || selectedAnswerIndex === null) return
+    setAnswered(true)
+
+    if (selectedAnswerIndex === correctAnswerIndex) {
+      setScore((s) => s + 1)
+    }
+
     advanceToNextQuestion()
   }
 
   const restartQuiz = () => {
+    setQuizVersion((v) => v + 1)
     setCurrentQuestion(0)
     setScore(0)
     setShowScore(false)
     setIsPaused(false)
     setAnswered(false)
+    setSelectedAnswerIndex(null)
   }
+
+  const totalTime = getTimeForDifficulty(questions[currentQuestion].difficulty)
+  const timerPercent = Math.max(0, Math.min(100, (timeLeft / totalTime) * 100))
+  const isTimerWarning = timerPercent <= 50
+  const isTimerDanger = timerPercent <= 25
+
+  const passThreshold = Math.ceil(questions.length / 2)
+  const passed = score >= passThreshold
 
   return (
     <div className="quiz-container">
       {showScore ? (
         <div className="score-section">
           <h2>Quiz Complete!</h2>
+          <img
+            className="result-gif"
+            src={passed ? acedGif : failGif}
+            alt={passed ? 'Aced it celebration' : 'Quiz fail reaction'}
+          />
           <p className="score">
             You scored <span>{score}</span> out of <span>{questions.length}</span>
           </p>
@@ -105,47 +128,68 @@ export function Quiz({ questions }: QuizProps) {
       ) : isPaused ? (
         <div className="paused-section">
           <h2>Quiz Paused</h2>
+          <img className="pause-gif" src={fluttershyPause} alt="Fluttershy pause" />
           <button onClick={() => setIsPaused(false)}>Resume</button>
         </div>
       ) : (
         <div className="question-section">
-          <div className="quiz-topbar">
-            <div className="question-counter">
-              <span>Question {currentQuestion + 1}</span>
-            </div>
-            <button className="pause-btn" onClick={() => setIsPaused(true)}>
-              Pause
-            </button>
+          <div
+            className={`timer-top-line ${isTimerDanger ? 'danger' : isTimerWarning ? 'warning' : ''}`}
+            role="progressbar"
+            aria-valuenow={timeLeft}
+            aria-valuemin={0}
+            aria-valuemax={totalTime}
+            aria-label={`Time remaining: ${timeLeft} seconds`}
+          >
+            <div
+              className="timer-top-line-fill"
+              style={{ width: `${timerPercent}%` }}
+            />
           </div>
-          <div className="quiz-meta">
-            <p>Difficulty: {questions[currentQuestion].difficulty}</p>
-            <p>Time left: {timeLeft}s</p>
-          </div>
-
-          <div className="quote-box">
-            <blockquote className="quote">
-              "{questions[currentQuestion].quote}"
-            </blockquote>
-            <p className="question-text">Who said this quote?</p>
-          </div>
-
-          <div className="answers-section">
-            {shuffledOptions.map((option, index) => (
-              <button
-                key={index}
-                onClick={() => handleAnswerClick(index)}
-                disabled={answered}
-              >
-                {option}
+          <div className="question-section-body">
+            <div className="quiz-topbar">
+              <div className="question-counter">
+                <span>Question {currentQuestion + 1}</span>
+              </div>
+              <button className="pause-btn" onClick={() => setIsPaused(true)} aria-label="Pause quiz">
+                ⏸
               </button>
-            ))}
-          </div>
+            </div>
+            <div className="quiz-meta">
+              <p>Difficulty: {questions[currentQuestion].difficulty}</p>
+            </div>
 
-          {answered && (
-            <button className="next-btn" onClick={handleNextQuestion}>
-              {currentQuestion === questions.length - 1 ? 'See Results' : 'Next Question'}
+            <div className="quote-box">
+              <blockquote className="quote">
+                "{questions[currentQuestion].quote}"
+              </blockquote>
+              <p className="question-text">Who said this quote?</p>
+            </div>
+
+            <div className="answers-section">
+              {shuffledOptions.map((option, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  className={`answer-option ${selectedAnswerIndex === index ? 'answer-option-selected' : ''}`}
+                  onClick={() => handleSelectOption(index)}
+                  disabled={answered}
+                  aria-pressed={selectedAnswerIndex === index}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="confirm-answer-btn"
+              onClick={handleConfirmAnswer}
+              disabled={selectedAnswerIndex === null || answered}
+            >
+              Confirm answer
             </button>
-          )}
+          </div>
         </div>
       )}
     </div>

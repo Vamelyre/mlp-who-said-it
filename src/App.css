@@ -4,9 +4,21 @@
   justify-content: center;
   align-items: flex-start;
   padding: 2rem 1rem;
+  position: relative;
+  background: #ffeef7;
+}
+
+.app-logo {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
 }
 
 .app-main {
   width: 100%;
   max-width: 720px;
+  margin-top: 2.5rem;
 }

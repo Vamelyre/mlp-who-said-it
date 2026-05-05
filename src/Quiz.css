@@ -2,10 +2,44 @@
   width: 100%;
 }
 
-.question-section,
+.question-section {
+  padding: 0;
+  overflow: hidden;
+  background: #ffe9f5;
+  animation: cardFloatIn 220ms ease-out;
+}
+
+.question-section-body {  padding: 1.25rem; }
+
+
+
 .score-section,
 .paused-section {
   padding: 1.25rem;
+  background: #ffe9f5;
+  animation: cardFloatIn 220ms ease-out;
+}
+
+.timer-top-line {
+  height: 5px;
+  width: 100%;
+  background: rgba(157, 94, 134, 0.2);
+}
+
+.timer-top-line-fill {
+  height: 100%;
+  width: 100%;
+  border-radius: 0 2px 2px 0;
+  background: linear-gradient(90deg, #ff88c2 0%, #ff6cab 100%);
+  transition: width 0.95s linear;
+}
+
+.timer-top-line.warning .timer-top-line-fill {
+  background: linear-gradient(90deg, #ffbf80 0%, #ff9f5c 100%);
+}
+
+.timer-top-line.danger .timer-top-line-fill {
+  background: linear-gradient(90deg, #ff7f95 0%, #ff5473 100%);
 }
 
 .quiz-topbar {
@@ -18,16 +52,16 @@
 .question-counter {
   font-size: 1.05rem;
   font-weight: 600;
+  color: #8b4c74;
 }
 
 .quiz-meta {
-  display: flex;
-  gap: 1rem;
   margin-top: 0.25rem;
 }
 
 .quiz-meta p {
   margin: 0;
+  color: #9b5b82;
 }
 
 .quote-box {
@@ -39,33 +73,145 @@
   margin: 0 0 2rem 0;
   font-size: 2rem;
   text-align: center;
+  color: #643855;
+  font-family: 'Celestia Redux', Arial, Helvetica, sans-serif;
+  animation: quotePopIn 260ms ease-out;
 }
 
 .question-text {
   margin: 0;
   text-align: center;
+  color: #94607e;
 }
+
+
 
 .answers-section {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.6rem;
   margin-top: 1rem;
 }
 
+.answer-option.answer-option-selected {
+  background: #ffc4e2;
+  color: #4a1f39;
+  box-shadow: inset 0 0 0 2px #a1688b;
+}
+
+.confirm-answer-btn {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  background: #ffaadc;
+  color: #4a2238;
+}
+
+.confirm-answer-btn:hover:not(:disabled) {
+}
+
+
 button {
   border: none;
-  border-radius: 6px;
-  padding: 0.6rem 0.8rem;
+  border-radius: 5px;
+  padding: 0.7rem 0.8rem;
   font: inherit;
   cursor: pointer;
+  background: #ffd6ea;
+  color: #5d3450;
+  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
 }
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  opacity: 0.96;
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0) scale(0.99);
+}
+
+
+
 
 .pause-btn {
   margin-left: auto;
+  min-width: 2.5rem;
+  font-size: 1.1rem;
+  padding: 0.55rem 0.65rem;
 }
+
 
 .next-btn,
 .restart-btn {
+  width: 100%;
   margin-top: 1rem;
+  background: #ffc4e2;
+  color: #361c2c;
 }
+
+.paused-section {
+  text-align: center;
+}
+
+.result-gif,
+.pause-gif {
+  display: block;
+  width: min(100%, 360px);
+  margin: 0.75rem auto 1rem;
+  border-radius: 10px;
+  animation: gifBounceIn 280ms ease-out;
+}
+
+@keyframes cardFloatIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
+
+
+@keyframes quotePopIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes gifBounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+

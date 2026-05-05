@@ -102,7 +102,7 @@ export const quizData: QuizQuestion[] = [
   },
   {
     id: 13,
-    quote: "Quiet",
+    quote: "QUIET!",
     characer: "Starlight Glimmer",
     difficulty: "medium",
     options: ["Starlight Glimmer", "Twilight Sparkle", "Princess Luna", "Fluttershy"],
