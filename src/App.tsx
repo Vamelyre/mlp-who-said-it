@@ -1,5 +1,6 @@
 import { Quiz } from './Quiz'
 import { quizData } from './quizData'
+import './App.css'
 
 function App() {
   return (
@@ -12,3 +13,7 @@ function App() {
 }
 
 export default App
+
+
+
+
